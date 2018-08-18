@@ -2,7 +2,7 @@ program solver
 
   ! pde_routines contains all the information
   ! about the scheme and initial conditions
-  use pde_routines, only: initial0
+  use pde_routines, only: initial0, initial1
   use inout , only: read_input
   implicit none
 
@@ -22,7 +22,6 @@ program solver
   integer :: i ! time index
   integer :: j ! position index
 
-
   ! Read in the values for the total lengths
   ! and number of points for arrays
   call read_input(nx,lx,nt,lt)
@@ -39,8 +38,12 @@ program solver
   psi1 = 0.
 
   ! Now we need to set up the initial conditions
-  call initial0(psi0,nx,dx)
+  call initial0(psi0, nx, dx)
+  call initial1(psi1, nx, dx, dt)
 
-  print*, psi0
+  print*,psi0
+  print*,psi1
+
+
 
 end program solver

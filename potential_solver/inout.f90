@@ -20,4 +20,16 @@ contains
 
   end subroutine read_input
 
+  subroutine write_initial(psi0, psi1, nx)
+    integer, intent(in) :: nx
+    real, intent(in) :: psi0(0:nx)
+    real, intent(in) :: psi1(0:nx)
+
+    ! Lets now write this to a file
+    open(1,file='output.dat')
+    write(1,*),psi0
+    write(1,*),psi1
+
+  end subroutine write_initial
+
 end module inout
