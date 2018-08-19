@@ -1,5 +1,5 @@
 FC=gfortran
-FFLAGS=-O3 -Wall -Wextra -fdefault-real-8
+FFLAGS=-O3 -Wall -Wextra -fdefault-real-8 -fcheck=all
 
 SRC=constants.f90 inout.f90 pde_routines.f90 solver.f90
 OBJ=${SRC:.f90=.o}
@@ -11,7 +11,7 @@ solution: $(OBJ)
 	$(FC) $(FFLAGS) -o $@ $(OBJ)
 
 clean: $(OBJ)
-	rm *.o *.mod
+	rm *.o *.mod *.dat
 
 clean_all: $(OBJ)
-	rm *.o *.mod solution
+	rm *.o *.mod *.dat solution
