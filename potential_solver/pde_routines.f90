@@ -9,19 +9,19 @@ contains
   ! Function defining the t=0 initial condition
   function init(x) result(y)
     real :: x,y
-    y = cos(2*pi*x)
+    y = exp(-(5*x)**2)
   end function init
 
   ! Function defining the initial t=0 initial derivatives
   function d_init(x) result(y)
     real :: x,y
-    y = 0.*x!5.*pi*cos(1*pi*x)
+    y = 0.*x
   end function d_init
 
   ! Function defining the potential to be considered
   function potent(x) result(y)
     real :: x,y
-    y = 0.*x ! sin(1*pi*x)
+    y = 0.*x
   end function potent
 !!!!!!!!!!!!!! USER INPUT FUNCTIONS END HERE !!!!!!!!!!!!!!!!
   ! Function for calculating the x position for index
@@ -92,11 +92,13 @@ contains
       psi1(j) = ini1 + ini2 - ini3
     end do
 
-    ! TODO fix this trash
-    psi1(0) = 0.
-    psi1(nx) = 0.
-
   end subroutine initial1
+
+  ! Here is the subroutine for the
+  ! Absorbing boundary conditions (Mur ABC)
+  ! which should stop the wave from
+  ! propagating back
+
 
   ! Subroutine that determines the value of a point in the
   ! next timestep
