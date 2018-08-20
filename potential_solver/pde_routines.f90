@@ -22,7 +22,7 @@ contains
   function potent(x) result(y)
     real :: x
     complex :: y
-    y = 0.*x
+    y = 10*exp(-(x-5)**2)
   end function potent
 !!!!!!!!!!!!!! USER INPUT FUNCTIONS END HERE !!!!!!!!!!!!!!!!
   ! Function for calculating the x position for index

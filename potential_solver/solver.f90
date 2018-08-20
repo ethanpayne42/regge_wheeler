@@ -28,11 +28,14 @@ program solver
   ! and number of points for arrays
   !call read_input(nx,dx,nt,dt)
 
-  nx = 2000; dx = 5e-3 ! 50
-  nt = 2000; dt = 1e-3 ! 100
+  nx = 100; dx = 2e-2 ! 7000
+  nt = 200; dt = 4e-3 ! 50000
 
   lx = nx*dx
   lt = nt*dt
+
+  print*,'Length in space of', lx
+  print*,'Length in time of', lt
 
   ! Now, we can set up the x and t arrays
   allocate(xs(0:nx))
@@ -67,13 +70,14 @@ program solver
   !print*,psi1
 
   ! Write the first two arrays
-  open(1,file='output.dat')
+  open(1,file='output_real.dat')
+  open(2,file='output_imag.dat')
 
   ! First lets write the x values across the top
   !write(1,*),0,xs
 
-  write(1,*),psi0
-  write(1,*),psi1
+  write(1,*),real(psi0); write(2,*),aimag(psi0)
+  write(1,*),real(psi1); write(2,*),aimag(psi1)
 
   ! Now we are at a point to implement the full scheme, almost
   do i=2,nt
@@ -84,8 +88,17 @@ program solver
       call boundaries(psi1,psi2,dx,dt,nx)
 
     end do
+
+    if (mod(i,100) == 0) then
+      write(*,"(A,I6,A,I6)",advance="no") '\b\b\b\b\b\b\b&
+      \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b &
+      At step ',i,' of ',nt
+
+    end if
+
     ! Write to file
-    write(1,*),psi2
+    write(1,*),real(psi2); write(2,*),aimag(psi2)
+
 
     !print*,psi2
 
@@ -96,6 +109,6 @@ program solver
 
   end do
 
-  close(1)
+  close(1); close(2)
 
 end program solver

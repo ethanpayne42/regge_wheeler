@@ -1,5 +1,5 @@
 FC=gfortran
-FFLAGS=-O3 -Wall -Wextra -fdefault-real-8 -fcheck=all
+FFLAGS=-O3 -Wall -Wextra -fdefault-real-8 -fcheck=all -fbackslash
 
 SRC=constants.f90 inout.f90 pde_routines.f90 solver.f90
 OBJ=${SRC:.f90=.o}
