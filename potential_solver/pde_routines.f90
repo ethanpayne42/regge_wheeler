@@ -1,5 +1,5 @@
 module pde_routines
-  use constants, only: pi
+  use constants, only: pi, ic
   implicit none
 
 contains
@@ -7,20 +7,21 @@ contains
 !!!!!!!!!!!!!! USER INPUT FUNCTIONS HERE !!!!!!!!!!!!!!!!!!!
 
   ! Function defining the t=0 initial condition
-  function init(x) result(y)
-    real :: x,y
-    y = exp(-(5*x)**2)
+  complex function init(x) result(y)
+    real :: x
+    y = exp(-(5*x)**2)*exp(ic*x)
   end function init
 
   ! Function defining the initial t=0 initial derivatives
-  function d_init(x) result(y)
-    real :: x,y
-    y = 0.*x
+  complex function d_init(x) result(y)
+    real :: x
+    y = (2*x*25-ic)*exp(-(5*x)**2)*exp(ic*x)
   end function d_init
 
   ! Function defining the potential to be considered
   function potent(x) result(y)
-    real :: x,y
+    real :: x
+    complex :: y
     y = 0.*x
   end function potent
 !!!!!!!!!!!!!! USER INPUT FUNCTIONS END HERE !!!!!!!!!!!!!!!!
@@ -37,7 +38,7 @@ contains
   ! Subroutine for the initial conditions of the wavepacket
   subroutine initial0(psi0,nx,dx)
     ! Declare the intentions
-    real, intent(inout) :: psi0(0:nx)
+    complex, intent(inout) :: psi0(0:nx)
     integer, intent(in) :: nx
     real, intent(in) :: dx
     real :: x0
@@ -60,12 +61,12 @@ contains
   ! conditions, note that it is the same order as the rest
   subroutine initial1(psi1, nx, dx, dt)
     ! Declaring the types,
-    real, intent(inout) :: psi1(0:nx)
+    complex, intent(inout) :: psi1(0:nx)
     integer, intent(in) :: nx
     real :: dx, dt
 
     ! Declare halfway variables
-    real :: ini1, ini2, ini3
+    complex :: ini1, ini2, ini3
 
     integer :: j
 
@@ -98,15 +99,33 @@ contains
   ! Absorbing boundary conditions (Mur ABC)
   ! which should stop the wave from
   ! propagating back
+  subroutine boundaries(psi1, psi2, dx, dt, nx)
+    ! Declaring the types,
+    integer, intent(in) :: nx
+    complex, intent(in) :: psi1(0:nx)
+    complex, intent(inout) :: psi2(0:nx)
+    real, intent(in) :: dx, dt
+
+    real :: sq_a
+    real :: frac
+
+    sq_a = dt/dx
+    frac = (sq_a -1)/(sq_a+1)
+
+    psi2(nx) = psi1(nx-1) + frac*(psi2(nx-1)-psi1(nx))
+
+    psi2(0) = psi1(1) + frac*(psi2(1)-psi1(0))
+
+  end subroutine boundaries
 
 
   ! Subroutine that determines the value of a point in the
   ! next timestep
   subroutine scheme(psi0, psi1, psi2, nx, dx, dt, j)
     ! Declaring types
-    real, intent(in) :: psi0(0:nx)
-    real, intent(in) :: psi1(0:nx)
-    real, intent(inout) :: psi2(0:nx)
+    complex, intent(in) :: psi0(0:nx)
+    complex, intent(in) :: psi1(0:nx)
+    complex, intent(inout) :: psi2(0:nx)
 
     integer :: nx, j
     real :: dx, dt, a
