@@ -3,8 +3,8 @@ program solver
   ! pde_routines contains all the information
   ! about the scheme and initial conditions
   use pde_routines, only: initial0, initial1, scheme, &
-                          x_tran, boundaries
-  use inout , only: read_input
+                          x_tran, boundaries, potent
+  use inout , only: read_input, read_in_potential
   implicit none
 
   ! Variables for the number of points in x
@@ -22,14 +22,21 @@ program solver
   integer :: i ! time index
   integer :: j ! position index
 
-  real, allocatable :: xs(:), ts(:)
+  real, allocatable :: ts(:)
+  real :: pot(0:4000)
+  real :: xs(0:4000)
+
+  integer :: potential_index = 1
+
+  call read_in_potential(pot,xs,potential_index)
+  print*, 'Potential at near last position is', pot(3999)
 
   ! Read in the values for the total lengths
   ! and number of points for arrays
   !call read_input(nx,dx,nt,dt)
 
-  nx = 100; dx = 2e-2 ! 7000
-  nt = 200; dt = 4e-3 ! 50000
+  nx = 3999; dx = 1e-1 ! 7000
+  nt = 5000; dt = 2.5e-2 ! 45000
 
   lx = nx*dx
   lt = nt*dt
@@ -37,14 +44,23 @@ program solver
   print*,'Length in space of', lx
   print*,'Length in time of', lt
 
-  ! Now, we can set up the x and t arrays
-  allocate(xs(0:nx))
+  ! Now, we can set up the t array
   allocate(ts(0:nt))
+
+  ! Create the x vector array as well as
+  ! save the potential to a file
+  open(3,file='potential.dat')
 
   do j=0,nx
     xs(j) = x_tran(j,dx,nx)
+    write(3,*) xs(j), real(potent(xs(j)))
+    ! TODO replace the real with complex later
   end do
 
+  print*,'written potential to file'
+  close(3)
+
+  ! Construct time array
   ts(0:nt) = (/(i*dt, i=0,nt)/)
 
   open(100, file='coord.dat')
@@ -89,6 +105,7 @@ program solver
 
     end do
 
+    ! Print the step to the screen
     if (mod(i,100) == 0) then
       write(*,"(A,I6,A,I6)",advance="no") '\b\b\b\b\b\b\b&
       \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b &

@@ -10,7 +10,7 @@ def shifter(r, M):
 def BH_tort(rs,M):
     # Calculates the values of r given r*
 
-    return 2*M*(1+lambertw(np.exp(rs/(2*M)-1)))
+    return 2*M*(1+np.real(lambertw(np.exp(rs/(2*M)-1))))
 
 def BH_potential(rs,M, l=2):
     r = BH_tort(rs+shifter(2.001,M),M)
@@ -71,26 +71,53 @@ def ECO_potential(rs, M, l=2):
     return np.piecewise(r, [rs < 0, rs>= 0,r < ECO_tort(-20,M)], #TODO clean up
     [lambda r: (1-2*M*r**2/r0**3)*(l*(l+1)/r**2-6*M/r0**3),
     lambda r: (1-(2*M)/r)*(l*(l+1)/r**2-6*M/r**3),
-    lambda r: np.inf])
+    lambda r: 1e9])
+
+def TS_tort(rs, M):
+    # Function to convert r* to r in TS coordinates
+    r0 = 2.001*M
+
+    shift = -shifter(r0,M)
+
+    rstar = np.piecewise(rs, [rs < 0, rs >= 0],
+                        [lambda rs: rs,
+                        lambda rs: BH_tort(rs-shift,M)])
+
+    return rstar
+
+def TS_potential(rs, M, l=2):
+
+    r = TS_tort(rs,M)
+
+    r0 = 2.001*M
+
+    return np.piecewise(r, [rs < 0, rs>= 0,r < TS_tort(-0.1,M)], #TODO clean up
+    [lambda r: (l*(l+1)/r**2),
+    lambda r: (1-(2*M)/r)*(l*(l+1)/r**2-6*M/r**3),
+    lambda r: 1e9])
 
 if __name__ == '__main__':
     M = 1
 
-    xs = np.linspace(-50,50,1000)*M
+    xs = np.arange(-200,200,1e-1)*M
 
-    plt.plot(xs, WH_tort(xs,M))
-    plt.plot(xs, BH_tort(xs,M))
-    plt.plot(xs, ECO_tort(xs,M))
-    plt.show()
+    print(len(xs))
 
     BH_pot = BH_potential(xs,M)
     WH_pot = WH_potential(xs,M)
     ECO_pot = ECO_potential(xs,M)
+    TS_pot = TS_potential(xs,M)
+
+    potentials = np.array([xs, BH_pot, WH_pot,
+                           ECO_pot, TS_pot]).T
+
+    np.savetxt('potentials_data.dat',potentials)
 
     plt.plot(xs/M,BH_pot*M**2,label='BH')
     plt.plot(xs/M,WH_pot*M**2,linestyle='-.',label='WH')
     plt.plot(xs/M,ECO_pot*M**2,linestyle='--',label='ECO')
-    plt.xlim(-50,50)
+    plt.plot(xs/M,TS_pot*M**2,label='TS')
+    plt.xlim(min(xs),max(xs))
     plt.ylim(0,0.16)
     plt.legend()
     plt.show()
